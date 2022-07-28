@@ -3,6 +3,7 @@ from io import BytesIO
 from time import sleep
 
 import pytesseract
+from config import config
 from PIL import Image
 from selenium import webdriver
 from selenium.common.exceptions import (ElementNotInteractableException,
@@ -17,7 +18,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from parsers.ItemInfo import ItemInfo
 from parsers.Parser import Parser
 
-pytesseract.pytesseract.tesseract_cmd = r'D:\Programs\Tesseract\tesseract.exe'
+pytesseract.pytesseract.tesseract_cmd = config['APP']['tesseract_path']
 
 
 class AvitoParser(Parser):

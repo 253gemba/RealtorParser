@@ -15,7 +15,7 @@ from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
 from webdriver_manager.chrome import ChromeDriverManager
 
-from parsers.ItemInfo import ItemInfo
+from models.ItemInfo import ItemInfo
 from parsers.Parser import Parser
 
 pytesseract.pytesseract.tesseract_cmd = config['APP']['tesseract_path']
@@ -60,14 +60,36 @@ class AvitoParser(Parser):
         try:
             image_link = divs[0].find_element(By.TAG_NAME, 'a').find_element(By.TAG_NAME, 'img').get_attribute('src')
         except NoSuchElementException:
-            image_link = ''
+            image_link = None
 
-        name = divs[1].find_element(By.TAG_NAME, 'a').text
+        title = divs[1].find_element(By.TAG_NAME, 'a').text
+        name = title.split(', ')[0]
+        area = float(title[len(name) + 2:].split(' м²')[0].replace(',', '.'))
+        floor = int(title.split(', ')[-1].split('/')[0])
+        floor_max = int(title.split(',')[-1].split('/')[-1].removesuffix(' эт.'))
         price = divs[1].find_element(By.XPATH, ".//span[@itemtype='http://schema.org/Offer']").text
-        location = divs[1].find_element(By.XPATH, ".//div[@data-marker='item-address']").text.replace('\n', '; ')
-        phone = AvitoParser._phone_number(card) if has_phone else ''
+        location = divs[1].find_element(By.XPATH, ".//div[@data-marker='item-address']").find_element(By.TAG_NAME, 'span').text
+        
+        try:
+            metro = divs[1].find_element(By.XPATH, ".//div[@data-marker='item-address']").find_element(By.TAG_NAME, 'div').find_element(By.TAG_NAME, 'div').text
+        except NoSuchElementException:
+            metro = None
+        
+        phone = AvitoParser._phone_number(card) if has_phone else None
+        description = divs[1].find_element(By.XPATH, ".//div[@data-marker='item-address']/following-sibling::div").text
 
-        return ItemInfo(card_link, image_link, name, price, location, phone)
+        return ItemInfo(
+            card_link=card_link,
+            image_link=image_link,
+            name=name,
+            description=description,
+            price=price,
+            location=location,
+            metro=metro,
+            phone=phone,
+            area=area,
+            floor=floor,
+            floor_max=floor_max) 
     
     @staticmethod
     def _show_number(card: WebElement) -> bool:

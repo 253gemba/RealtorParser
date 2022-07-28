@@ -7,7 +7,7 @@ from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
 from webdriver_manager.chrome import ChromeDriverManager
 
-from parsers.ItemInfo import ItemInfo
+from models.ItemInfo import ItemInfo
 from parsers.Parser import Parser
 
 

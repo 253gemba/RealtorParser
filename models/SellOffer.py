@@ -2,12 +2,12 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
-class ItemInfo:
+class SellOffer:
     card_link: str
     image_link: str | None
     name: str
     description: str | None
-    price: str
+    price: int
     location: str
     metro: str | None
     phone: str | None

@@ -1,13 +1,17 @@
 from abc import ABC, abstractmethod
+from models.RentOffer import RentOffer
 
+from models.SellOffer import SellOffer
 from xlsxwriter import Workbook
-
-from models.ItemInfo import ItemInfo
 
 
 class Parser(ABC):
     @abstractmethod
-    def parse(self) -> list[ItemInfo]:
+    def parse_sell_offers(self) -> list[SellOffer]:
+        raise NotImplementedError
+    
+    @abstractmethod
+    def parse_rent_offers(self) -> list[RentOffer]:
         raise NotImplementedError
     
     @property
@@ -16,11 +20,13 @@ class Parser(ABC):
         raise NotImplementedError
 
     def run(self) -> None:
-        data = self.parse()
-        self.save(data)
+        sells = self.parse_sell_offers()
+        rents = self.parse_rent_offers()
+        self.save(sells, 'sells')
+        self.save(rents, 'rents')
     
-    def save(self, data: list[ItemInfo]):
-        file = Workbook(f'data/{self.name}.xlsx')
+    def save(self, data: list[SellOffer], name: str):
+        file = Workbook(f'data/{self.name}_{name}.xlsx')
         page = file.add_worksheet(self.name)
         
         # Title

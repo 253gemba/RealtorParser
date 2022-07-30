@@ -7,15 +7,11 @@ from config import config
 from models.RentOffer import RentOffer
 from models.SellOffer import SellOffer
 from PIL import Image
-from selenium import webdriver
 from selenium.common.exceptions import (ElementNotInteractableException,
                                         NoSuchElementException)
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
-from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
-from webdriver_manager.chrome import ChromeDriverManager
 
 from parsers.Parser import Parser
 
@@ -23,55 +19,27 @@ pytesseract.pytesseract.tesseract_cmd = config['APP']['tesseract_path']
 
 
 class AvitoParser(Parser):
-    def parse_sell_offers(self) -> list[SellOffer]:
-        info: list[SellOffer] = []
-
-        for page in range(1, 2):
-            driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=webdriver.ChromeOptions())
-            driver.get(f'https://www.avito.ru/sankt-peterburg/kvartiry/prodam-ASgBAgICAUSSA8YQ?p={page}&s=104')     
-
-            # Parsing
-            cards = AvitoParser._get_cards(driver)
-            for card in cards:
-                ActionChains(driver).move_to_element(card).perform()
-                info.append(AvitoParser._parse_sell_card(card))
-                sleep(3)
-
-            driver.quit()
-
-        return info
-    
-    def parse_rent_offers(self) -> list[RentOffer]:
-        info: list[RentOffer] = []
-
-        for page in range(1, 2):
-            driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=webdriver.ChromeOptions())
-            driver.get(f'https://www.avito.ru/sankt-peterburg/kvartiry/sdam-ASgBAgICAUSSA8gQ?p={page}&s=104')     
-
-            # Parsing
-            cards = AvitoParser._get_cards(driver)
-            for card in cards:
-                ActionChains(driver).move_to_element(card).perform()
-                info.append(AvitoParser._parse_rent_card(card))
-                sleep(3)
-
-            driver.quit()
-
-        return info
-    
     @property
     def name(self):
         return 'Avito'
-
-    @staticmethod
-    def _get_cards(driver: WebDriver) -> list[WebElement]:
-        return driver\
+    
+    @property
+    def sell_url(self) -> str:
+        return 'https://www.avito.ru/sankt-peterburg/kvartiry/prodam-ASgBAgICAUSSA8YQ?p={page}&s=104'
+    
+    @property
+    def rent_url(self) -> str:
+        return 'https://www.avito.ru/sankt-peterburg/kvartiry/sdam-ASgBAgICAUSSA8gQ?p={page}&s=104'
+    
+    def get_cards(self) -> list[WebElement]:
+        return self.driver\
             .find_element(By.XPATH, ".//div[@elementtiming='bx.catalog.container']")\
             .find_element(By.TAG_NAME, 'div')\
             .find_elements(By.XPATH, "./div[@itemtype='http://schema.org/Product']")
+    
+    def parse_sell_card(self, card: WebElement) -> SellOffer:
+        ActionChains(self.driver).move_to_element(card).perform()
 
-    @staticmethod
-    def _parse_sell_card(card: WebElement) -> SellOffer:
         # Show phone number
         has_phone = AvitoParser._show_number(card)
 
@@ -101,6 +69,7 @@ class AvitoParser(Parser):
         phone = AvitoParser._phone_number(card) if has_phone else None
         description = divs[1].find_element(By.XPATH, ".//div[@data-marker='item-address']/following-sibling::div").text
 
+        sleep(1)
         return SellOffer(
             card_link=card_link,
             image_link=image_link,
@@ -113,9 +82,10 @@ class AvitoParser(Parser):
             area=area,
             floor=floor,
             floor_max=floor_max) 
+    
+    def parse_rent_card(self, card: WebElement) -> RentOffer:
+        ActionChains(self.driver).move_to_element(card).perform()
 
-    @staticmethod
-    def _parse_rent_card(card: WebElement) -> RentOffer:
         # Show phone number
         has_phone = AvitoParser._show_number(card)
 
@@ -144,6 +114,7 @@ class AvitoParser(Parser):
         phone = AvitoParser._phone_number(card) if has_phone else None
         description = divs[1].find_element(By.XPATH, ".//div[@data-marker='item-address']/following-sibling::div").text
 
+        sleep(1)
         return RentOffer(
             card_link=card_link,
             image_link=image_link,

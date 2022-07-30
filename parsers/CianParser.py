@@ -1,71 +1,31 @@
 from time import sleep
-from models.RentOffer import RentOffer
 
+from models.RentOffer import RentOffer
 from models.SellOffer import SellOffer
-from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
-from webdriver_manager.chrome import ChromeDriverManager
 
 from parsers.Parser import Parser
 
 
 class CianParser(Parser):
-    def parse_sell_offers(self) -> list[SellOffer]:
-        info: list[SellOffer] = []
-
-        for page in range(1, 2):
-            driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=webdriver.ChromeOptions())
-            driver.get(f'https://spb.cian.ru/cat.php?deal_type=sale&engine_version=2&offer_type=flat&p={page}&region=2&sort=creation_date_desc')
-
-            # Scrolling
-            for _ in range(3):
-                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-                sleep(1)
-
-            # Parsing
-            cards = CianParser._get_cards(driver)
-            for card in cards:
-                info.append(CianParser._parse_sell_card(card))
-            
-            driver.close()
-
-        return info
-    
-    def parse_rent_offers(self) -> list[RentOffer]:
-        info: list[RentOffer] = []
-
-        for page in range(1, 2):
-            driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=webdriver.ChromeOptions())
-            driver.get(f'https://spb.cian.ru/cat.php?deal_type=rent&engine_version=2&offer_type=flat&p={page}&region=2&sort=creation_date_desc&type=4')
-
-            # Scrolling
-            for _ in range(3):
-                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-                sleep(1)
-
-            # Parsing
-            cards = CianParser._get_cards(driver)
-            for card in cards:
-                info.append(CianParser._parse_rent_card(card))
-            
-            driver.close()
-
-        return info
-
     @property
     def name(self) -> str:
         return 'Cian'
+
+    @property
+    def sell_url(self) -> str:
+        return 'https://spb.cian.ru/cat.php?deal_type=sale&engine_version=2&offer_type=flat&p={page}&region=2&sort=creation_date_desc'
     
-    @staticmethod
-    def _get_cards(driver: WebDriver) -> list[WebElement]:
-        return driver.find_elements(By.XPATH, ".//article[@data-name='CardComponent']")
-    
-    @staticmethod
-    def _parse_sell_card(card: WebElement) -> SellOffer:
+    @property
+    def rent_url(self) -> str:
+        return 'https://spb.cian.ru/cat.php?deal_type=rent&engine_version=2&offer_type=flat&p={page}&region=2&sort=creation_date_desc&type=4'
+
+    def get_cards(self) -> list[WebElement]:
+        return self.driver.find_elements(By.XPATH, ".//article[@data-name='CardComponent']")
+
+    def parse_sell_card(self, card: WebElement) -> SellOffer:
         # Show phone number
         card.find_element(By.XPATH, ".//button[@data-mark='PhoneButton']").click()
         card_link = card.find_element(By.TAG_NAME, 'a').get_attribute('href')
@@ -93,7 +53,7 @@ class CianParser(Parser):
         price = int(card.find_element(By.XPATH, ".//span[@data-mark='MainPrice']").text.replace('₽', '').replace(' ', ''))
         location = ', '.join([geo.text for geo in card.find_elements(By.XPATH, ".//a[@data-name='GeoLabel']")])
         metro = card.find_element(By.XPATH, ".//div[@data-name='SpecialGeo']").text
-        sleep(1)
+        sleep(2)
         phone = card.find_element(By.XPATH, ".//span[@data-mark='PhoneValue']").text
 
         return SellOffer(
@@ -109,15 +69,15 @@ class CianParser(Parser):
             floor=floor,
             floor_max=floor_max)
 
-    @staticmethod
-    def _parse_rent_card(card: WebElement) -> RentOffer:
+    def parse_rent_card(self, card: WebElement) -> RentOffer:
         # Show phone number
         try:
             card.find_element(By.XPATH, ".//button[@data-mark='PhoneButton']").click()
-            card_link = card.find_element(By.TAG_NAME, 'a').get_attribute('href')
             has_phone = True
         except NoSuchElementException:
             has_phone = False
+        
+        card_link = card.find_element(By.TAG_NAME, 'a').get_attribute('href')
 
         try:
             image_link = card.find_element(By.TAG_NAME, 'img').get_attribute('src')
@@ -145,7 +105,7 @@ class CianParser(Parser):
 
         phone = None
         if has_phone:
-            sleep(1)
+            sleep(2)
             phone = card.find_element(By.XPATH, ".//span[@data-mark='PhoneValue']").text
         
         return RentOffer(

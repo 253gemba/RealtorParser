@@ -15,7 +15,7 @@ from selenium.webdriver.remote.webelement import WebElement
 
 from parsers.Parser import Parser
 
-pytesseract.pytesseract.tesseract_cmd = config['APP']['tesseract_path']
+# pytesseract.pytesseract.tesseract_cmd = config['APP']['tesseract_path']
 
 
 class AvitoParser(Parser):

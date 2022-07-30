@@ -58,7 +58,7 @@ class Parser(ABC):
                 sells.append(self.parse_sell_card(card))
 
             self.driver.close()
-        
+                
         # Rents parsing
         rents: list[RentOffer] = []
         for page in range(1, 2):

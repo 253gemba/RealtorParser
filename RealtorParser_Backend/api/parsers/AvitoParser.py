@@ -3,17 +3,16 @@ from io import BytesIO
 from time import sleep
 
 import pytesseract
-from config import config
-from models.RentOffer import RentOffer
-from models.SellOffer import SellOffer
 from PIL import Image
+from RealtorParser_Backend.config import config
 from selenium.common.exceptions import (ElementNotInteractableException,
                                         NoSuchElementException)
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 
-from parsers.Parser import Parser
+from ..models import RentOffer, SellOffer
+from .Parser import Parser
 
 pytesseract.pytesseract.tesseract_cmd = config['APP']['tesseract_path']
 

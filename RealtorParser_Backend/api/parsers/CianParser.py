@@ -1,12 +1,11 @@
 from time import sleep
 
-from models.RentOffer import RentOffer
-from models.SellOffer import SellOffer
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 
-from parsers.Parser import Parser
+from ..models import RentOffer, SellOffer
+from .Parser import Parser
 
 
 class CianParser(Parser):
@@ -55,7 +54,6 @@ class CianParser(Parser):
         metro = card.find_element(By.XPATH, ".//div[@data-name='SpecialGeo']").text
         sleep(2)
         phone = card.find_element(By.XPATH, ".//span[@data-mark='PhoneValue']").text
-
         return SellOffer(
             card_link=card_link,
             image_link=image_link,

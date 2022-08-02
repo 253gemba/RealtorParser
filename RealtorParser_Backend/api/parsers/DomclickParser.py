@@ -8,16 +8,16 @@ from ..models import RentOffer, SellOffer
 
 class DomclickParser(Parser):
     @property
-    def name(self) -> str:
-        return 'Domclick'
+    def base_url(self) -> str:
+        return 'https://spb.domclick.ru'
 
     @property
     def sell_url(self) -> str:
-        return 'https://spb.domclick.ru/search?deal_type=sale&category=living&sort=published&sort_dir=desc&offset={page}0'
+        return '/search?deal_type=sale&category=living&sort=published&sort_dir=desc&offset={page}0'
     
     @property
     def rent_url(self) -> str:
-        return 'https://spb.domclick.ru/search?deal_type=rent&category=living&sort=published&sort_dir=desc&offset={page}0'
+        return '/search?deal_type=rent&category=living&sort=published&sort_dir=desc&offset={page}0'
     
     def get_cards(self) -> list[WebElement]:
         self.scroll_down()

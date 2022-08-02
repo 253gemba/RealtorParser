@@ -19,16 +19,16 @@ pytesseract.pytesseract.tesseract_cmd = config['APP']['tesseract_path']
 
 class AvitoParser(Parser):
     @property
-    def name(self):
-        return 'Avito'
+    def base_url(self):
+        return 'https://www.avito.ru'
     
     @property
     def sell_url(self) -> str:
-        return 'https://www.avito.ru/sankt-peterburg/kvartiry/prodam-ASgBAgICAUSSA8YQ?p={page}&s=104'
+        return '/sankt-peterburg/kvartiry/prodam-ASgBAgICAUSSA8YQ?p={page}&s=104'
     
     @property
     def rent_url(self) -> str:
-        return 'https://www.avito.ru/sankt-peterburg/kvartiry/sdam-ASgBAgICAUSSA8gQ?p={page}&s=104'
+        return '/sankt-peterburg/kvartiry/sdam-ASgBAgICAUSSA8gQ?p={page}&s=104'
     
     def get_cards(self) -> list[WebElement]:
         return self.driver\
@@ -61,7 +61,11 @@ class AvitoParser(Parser):
         location = divs[1].find_element(By.XPATH, ".//div[@data-marker='item-address']").find_element(By.TAG_NAME, 'span').text
         
         try:
-            metro = divs[1].find_element(By.XPATH, ".//div[@data-marker='item-address']").find_element(By.TAG_NAME, 'div').find_element(By.TAG_NAME, 'div').text
+            metro = divs[1]\
+                .find_element(By.XPATH, ".//div[@data-marker='item-address']")\
+                .find_element(By.TAG_NAME, 'div')\
+                .find_element(By.TAG_NAME, 'div').text\
+                .replace('\n', ' ')
         except NoSuchElementException:
             metro = None
         

@@ -11,11 +11,11 @@ def start():
     scheduler.add_jobstore(DjangoJobStore(), 'djangojobstore')
     register_events(scheduler)
 
-    @scheduler.scheduled_job('interval', seconds=1000, name='Avito', next_run_time=datetime.now())
+    @scheduler.scheduled_job('interval', minutes=10, name='Avito', next_run_time=datetime.now())
     def parse_avito():
         AvitoParser().run()
 
-    @scheduler.scheduled_job('interval', seconds=1000, name='Cian', next_run_time=datetime.now())
+    @scheduler.scheduled_job('interval', minutes=10, name='Cian', next_run_time=datetime.now())
     def parse_cian():
         CianParser().run()
 

@@ -10,16 +10,16 @@ from .Parser import Parser
 
 class CianParser(Parser):
     @property
-    def name(self) -> str:
-        return 'Cian'
+    def base_url(self) -> str:
+        return 'https://spb.cian.ru'
 
     @property
     def sell_url(self) -> str:
-        return 'https://spb.cian.ru/cat.php?deal_type=sale&engine_version=2&offer_type=flat&p={page}&region=2&sort=creation_date_desc'
+        return '/cat.php?deal_type=sale&engine_version=2&offer_type=flat&p={page}&region=2&sort=creation_date_desc'
     
     @property
     def rent_url(self) -> str:
-        return 'https://spb.cian.ru/cat.php?deal_type=rent&engine_version=2&offer_type=flat&p={page}&region=2&sort=creation_date_desc&type=4'
+        return '/cat.php?deal_type=rent&engine_version=2&offer_type=flat&p={page}&region=2&sort=creation_date_desc&type=4'
 
     def get_cards(self) -> list[WebElement]:
         return self.driver.find_elements(By.XPATH, ".//article[@data-name='CardComponent']")
@@ -51,7 +51,7 @@ class CianParser(Parser):
             description = None
         price = int(card.find_element(By.XPATH, ".//span[@data-mark='MainPrice']").text.replace('₽', '').replace(' ', ''))
         location = ', '.join([geo.text for geo in card.find_elements(By.XPATH, ".//a[@data-name='GeoLabel']")])
-        metro = card.find_element(By.XPATH, ".//div[@data-name='SpecialGeo']").text
+        metro = card.find_element(By.XPATH, ".//div[@data-name='SpecialGeo']").text.replace('\n', ' ')
         sleep(2)
         phone = card.find_element(By.XPATH, ".//span[@data-mark='PhoneValue']").text
         return SellOffer(

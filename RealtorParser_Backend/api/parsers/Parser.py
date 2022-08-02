@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from time import sleep
+from typing import Callable, Type
 
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -9,13 +10,15 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 from ..models import RentOffer, SellOffer
 
+Offer = SellOffer | RentOffer
+
 
 class Parser(ABC):
     driver: WebDriver
     
     @property
     @abstractmethod
-    def name(self) -> str:
+    def base_url(self) -> str:
         raise NotImplementedError
     
     @property
@@ -30,7 +33,7 @@ class Parser(ABC):
 
     @abstractmethod
     def get_cards(self) -> list[WebElement]:
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def parse_sell_card(self, card: WebElement) -> SellOffer:
@@ -40,38 +43,38 @@ class Parser(ABC):
     def parse_rent_card(self, card: WebElement) -> RentOffer:
         raise NotImplementedError
     
-    def run(self) -> None:
-        # Sells parsing
-        sells: list[SellOffer] = []
-        for page in range(1, 2):
-            self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=webdriver.ChromeOptions())
-            self.driver.get(self.sell_url.format(page=page))
-
-            cards = self.get_cards()
-            for card in cards:
-                sells.append(self.parse_sell_card(card))
-
-            self.driver.close()
-        
-        for sell in sells:
-            sell.save()
-
-        # Rents parsing
-        rents: list[RentOffer] = []
-        for page in range(1, 2):
-            self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=webdriver.ChromeOptions())
-            self.driver.get(self.rent_url.format(page=page))
-
-            cards = self.get_cards()
-            for card in cards:
-                rents.append(self.parse_rent_card(card))
-
-            self.driver.close()
-        
-        for rent in rents:
-            rent.save()
+    def run(self):
+        self._run(SellOffer, self.sell_url, self.get_cards, self.parse_sell_card)
+        self._run(RentOffer, self.rent_url, self.get_cards, self.parse_rent_card)
     
-    def scroll_down(self) -> None:
+    def scroll_down(self):
         for _ in range(3):
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             sleep(1)
+
+    def _run(self, model: Type[Offer], url: str, get_cards: Callable[[], list[WebElement]], parse_card: Callable[[WebElement], Offer]):
+        offers: list[Offer] = []
+        
+        last_offer: Offer | None = model.objects.filter(card_link__startswith=self.base_url).order_by('-created').first()
+        reached_last: bool = False
+        for page in range(1, 2):
+            self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=webdriver.ChromeOptions())
+            self.driver.get(self.base_url + url.format(page=page))
+
+            cards = get_cards()
+            for card in cards:
+                offer = parse_card(card)
+
+                reached_last |= last_offer is not None and offer.card_link == last_offer.card_link
+                if reached_last:
+                    break
+
+                offers.append(offer)
+
+            self.driver.close()
+
+            if reached_last:
+                break
+        
+        for offer in offers:
+            offer.save()

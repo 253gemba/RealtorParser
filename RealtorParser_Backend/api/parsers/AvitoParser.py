@@ -106,7 +106,15 @@ class AvitoParser(Parser):
         area = float(title[len(name) + 2:].split(' м²')[0].replace(',', '.'))
         floor = int(title.split(', ')[-1].split('/')[0])
         floor_max = int(title.split(',')[-1].split('/')[-1].removesuffix(' эт.'))
-        price = divs[1].find_element(By.XPATH, ".//span[@itemtype='http://schema.org/Offer']").text
+
+        price_text = divs[1].find_element(By.XPATH, ".//span[@itemtype='http://schema.org/Offer']").text
+        if '₽' in price_text:
+            price = int(price_text.split('₽')[0].replace(' ', ''))
+            price_per = price_text.split('₽')[1].strip()
+        else:
+            price = int(price_text.split('/')[0])
+            price_per = price_text.split('/')[1]
+
         location = divs[1].find_element(By.XPATH, ".//div[@data-marker='item-address']").find_element(By.TAG_NAME, 'span').text
         
         try:
@@ -124,6 +132,7 @@ class AvitoParser(Parser):
             name=name,
             description=description,
             price=price,
+            price_per=price_per,
             location=location,
             metro=metro,
             phone=phone,

@@ -97,9 +97,10 @@ class CianParser(Parser):
             description = card.find_element(By.XPATH, ".//div[@data-name='Description']").text
         except NoSuchElementException:
             description = None
-        price = card.find_element(By.XPATH, ".//span[@data-mark='MainPrice']").text.replace('₽', '').replace(' ', '')
+        price = int(card.find_element(By.XPATH, ".//span[@data-mark='MainPrice']").text.replace('₽', '').replace(' ', '').split('/')[0])
+        price_per = card.find_element(By.XPATH, ".//span[@data-mark='MainPrice']").text.replace('₽', '').replace(' ', '').split('/')[1]
         location = ', '.join([geo.text for geo in card.find_elements(By.XPATH, ".//a[@data-name='GeoLabel']")])
-        metro = card.find_element(By.XPATH, ".//div[@data-name='SpecialGeo']").text
+        metro = card.find_element(By.XPATH, ".//div[@data-name='SpecialGeo']").text.replace('\n', ' ')
 
         phone = None
         if has_phone:
@@ -112,6 +113,7 @@ class CianParser(Parser):
             name=name,
             description=description,
             price=price,
+            price_per=price_per,
             location=location,
             metro=metro,
             phone=phone,

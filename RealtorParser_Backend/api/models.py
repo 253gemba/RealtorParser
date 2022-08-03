@@ -1,31 +1,28 @@
-from django.db import models
+from django.db.models import (CharField, DateTimeField, FloatField,
+                              IntegerField, Model, TextField, URLField)
 
 
-class SellOffer(models.Model):
-    card_link = models.URLField(max_length=500)
-    image_link = models.URLField(max_length=500, blank=True, null=True)
-    name = models.CharField(max_length=500)
-    description = models.TextField(blank=True, null=True)
-    price = models.IntegerField()
-    location = models.CharField(max_length=500)
-    metro = models.CharField(max_length=500, blank=True, null=True)
-    phone = models.CharField(max_length=200, blank=True, null=True)
-    area = models.FloatField()
-    floor = models.IntegerField()
-    floor_max = models.IntegerField()
-    created = models.DateTimeField(auto_now_add=True)
+class Offer(Model):
+    card_link = URLField(max_length=500)
+    image_link = URLField(max_length=500, blank=True, null=True)
+    name = CharField(max_length=500)
+    description = TextField(blank=True, null=True)
+    price = IntegerField()
+    location = CharField(max_length=500)
+    metro = CharField(max_length=500, blank=True, null=True)
+    phone = CharField(max_length=200, blank=True, null=True)
+    area = FloatField()
+    floor = IntegerField()
+    floor_max = IntegerField()
+    created = DateTimeField(auto_now_add=True)
+
+    class Meta:
+        abstract = True
 
 
-class RentOffer(models.Model):
-    card_link = models.URLField(max_length=500)
-    image_link = models.URLField(max_length=500, blank=True, null=True)
-    name = models.CharField(max_length=500)
-    description = models.TextField(blank=True, null=True)
-    price = models.CharField(max_length=200)
-    location = models.CharField(max_length=500)
-    metro = models.CharField(max_length=500, blank=True, null=True)
-    phone = models.CharField(max_length=200, blank=True, null=True)
-    area = models.FloatField()
-    floor = models.IntegerField()
-    floor_max = models.IntegerField()
-    created = models.DateTimeField(auto_now_add=True)
+class SellOffer(Offer):
+    pass
+
+
+class RentOffer(Offer):
+    price_per = CharField(max_length=200)

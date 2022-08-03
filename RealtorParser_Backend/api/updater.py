@@ -1,6 +1,7 @@
 from datetime import datetime
+
 from apscheduler.schedulers.background import BackgroundScheduler
-from django_apscheduler.jobstores import register_events, DjangoJobStore
+from django_apscheduler.jobstores import DjangoJobStore, register_events
 
 from .parsers.AvitoParser import AvitoParser
 from .parsers.CianParser import CianParser

@@ -1,19 +1,19 @@
-from rest_framework.decorators import api_view
-from rest_framework.request import Request
-from rest_framework.response import Response
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.generics import ListAPIView
 
+from api.filters import RentOfferFiler, SellOfferFiler
 from api.models import RentOffer, SellOffer
 from api.serializers import RentOfferSerializer, SellOfferSerializer
 
 
-@api_view(['GET'])
-def sells(request: Request):
-    items = SellOffer.objects.all()
-    serialized = SellOfferSerializer(items, many=True)
-    return Response(serialized.data)
+class SellOfferViewSet(ListAPIView):
+    serializer_class = SellOfferSerializer
+    filter_backends = (DjangoFilterBackend, )
+    queryset = SellOffer.objects.all()
+    filterset_class = SellOfferFiler
 
-@api_view(['GET'])
-def rents(request: Request):
-    items = RentOffer.objects.all()
-    serialized = RentOfferSerializer(items, many=True)
-    return Response(serialized.data)
+class RentOfferViewSet(ListAPIView):
+    serializer_class = RentOfferSerializer
+    filter_backends = (DjangoFilterBackend, )
+    queryset = RentOffer.objects.all()
+    filterset_class = RentOfferFiler

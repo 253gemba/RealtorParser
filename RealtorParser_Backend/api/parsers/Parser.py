@@ -56,25 +56,20 @@ class Parser(ABC):
         offers: list[Offer] = []
         
         last_offer: Offer | None = model.objects.filter(card_link__startswith=self.base_url).order_by('-created').first()
-        reached_last: bool = False
-        for page in range(1, 2):
-            self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=webdriver.ChromeOptions())
-            self.driver.get(self.base_url + url.format(page=page))
 
-            cards = get_cards()
-            for card in cards:
-                offer = parse_card(card)
+        self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=webdriver.ChromeOptions())
+        self.driver.get(self.base_url + url.format(page=1))
 
-                reached_last |= last_offer is not None and offer.card_link == last_offer.card_link
-                if reached_last:
-                    break
+        cards = get_cards()
+        for card in cards:
+            offer = parse_card(card)
 
-                offers.append(offer)
-
-            self.driver.close()
-
-            if reached_last:
+            if last_offer is not None and offer.card_link == last_offer.card_link:
                 break
+
+            offers.append(offer)
+
+        self.driver.close()
         
         for offer in offers:
             offer.save()

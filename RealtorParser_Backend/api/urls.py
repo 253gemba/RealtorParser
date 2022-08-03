@@ -1,7 +1,8 @@
 from django.urls import path
-from .views import sells, rents
+
+from .views import RentOfferViewSet, SellOfferViewSet
 
 urlpatterns = [
-    path('sells/', sells),
-    path('rents/', rents)
+    path('sells/', SellOfferViewSet.as_view()),
+    path('rents/', RentOfferViewSet.as_view())
 ]

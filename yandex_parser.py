@@ -126,11 +126,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-'''
-https://realty.yandex.ru/gate/offer-phones/get-new/?offerId=5859049218484004865&updateCalls=YES&crc=y8aa51498d1c7106541dbf3c76b5ef395&powB64=eyJoYXNoIjoiMDAwMDAxODI2NTBlMDNiN2Q3NzUyNDA4Y2YwOGVjMzkiLCJ0aW1lc3RhbXAiOjE2NTk1NTI3OTM0MjcsInBheWxvYWQiOiJvZmZlcklkPTU4NTkwNDkyMTg0ODQwMDQ4NjUmdXBkYXRlQ2FsbHM9WUVTJiIsInRpbWVUb0NvbXBsZXRlIjo3Nn0=
-https://realty.yandex.ru/gate/offer-phones/get-new/?offerId=2981316173698520576&updateCalls=YES&crc=y8aa51498d1c7106541dbf3c76b5ef395&powB64=eyJoYXNoIjoiMDAwMDAxODI2NTE0YjkwZGY0MWI0MWMyOGY1YWI0MTAiLCJ0aW1lc3RhbXAiOjE2NTk1NTMyMzI5NjcsInBheWxvYWQiOiJvZmZlcklkPTI5ODEzMTYxNzM2OTg1MjA1NzYmdXBkYXRlQ2FsbHM9WUVTJiIsInRpbWVUb0NvbXBsZXRlIjoxODl9
-https://realty.yandex.ru/gate/offer-phones/get-new/?offerId=6722184239095533313&updateCalls=YES&crc=y8aa51498d1c7106541dbf3c76b5ef395&powB64=eyJoYXNoIjoiMDAwMDAxODI2NTFkOTdlNzRiYjYyNTU1OGI5YWM2YmEiLCJ0aW1lc3RhbXAiOjE2NTk1NTM4MTQxOTEsInBheWxvYWQiOiJvZmZlcklkPTY3MjIxODQyMzkwOTU1MzMzMTMmdXBkYXRlQ2FsbHM9WUVTJiIsInRpbWVUb0NvbXBsZXRlIjoyOTJ9
-                                                                                                                                             eyJoYXNoIjoiMDAwMDAxODI2NTBlMDNiN2Q3NzUyNDA4Y2YwOGVjMzkiLCJ0aW1lc3RhbXAiOjE2NTk1NTI3OTM0MjcsInBheWxvYWQiOiJvZmZlcklkPTU4NTkwNDkyMTg0ODQwMDQ4NjUmdXBkYXRlQ2FsbHM9WUVTJiIsInRpbWVUb0NvbXBsZXRlIjo3Nn0=
-'''

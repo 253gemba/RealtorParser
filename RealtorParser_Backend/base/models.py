@@ -26,4 +26,6 @@ class SellOffer(Offer):
 
 
 class RentOffer(Offer):
-    price_per = CharField(max_length=200)
+    price_day = 'day'
+    price_month = 'month'
+    price_per = CharField(max_length=200, choices=((price_day, 'день'), (price_month, 'месяц')))

@@ -109,12 +109,9 @@ class AvitoParser(Parser):
         floor_max = int(title.split(',')[-1].split('/')[-1].removesuffix(' эт.'))
 
         price_text = divs[1].find_element(By.XPATH, ".//span[@itemtype='http://schema.org/Offer']").text
-        if '₽' in price_text:
-            price = int(price_text.split('₽')[0].replace(' ', ''))
-            price_per = price_text.split('₽')[1].strip()
-        else:
-            price = int(price_text.split('/')[0])
-            price_per = price_text.split('/')[1]
+        price = int(price_text.split('₽')[0].replace(' ', ''))
+        price_per = RentOffer.price_day if price_text.split('₽')[1].strip().endswith('сутки') else RentOffer.price_month
+
 
         location = divs[1].find_element(By.XPATH, ".//div[@data-marker='item-address']").find_element(By.TAG_NAME, 'span').text
         

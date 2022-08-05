@@ -98,7 +98,7 @@ class CianParser(Parser):
         except NoSuchElementException:
             description = None
         price = int(card.find_element(By.XPATH, ".//span[@data-mark='MainPrice']").text.replace('₽', '').replace(' ', '').split('/')[0])
-        price_per = card.find_element(By.XPATH, ".//span[@data-mark='MainPrice']").text.replace('₽', '').replace(' ', '').split('/')[1]
+        price_per = RentOffer.price_month if card.find_element(By.XPATH, ".//span[@data-mark='MainPrice']").text.replace('₽', '').replace(' ', '').split('/')[1].endswith('мес.') else RentOffer.price_day
         location = ', '.join([geo.text for geo in card.find_elements(By.XPATH, ".//a[@data-name='GeoLabel']")])
         metro = card.find_element(By.XPATH, ".//div[@data-name='SpecialGeo']").text.replace('\n', ' ')
 

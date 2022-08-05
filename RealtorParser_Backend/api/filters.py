@@ -13,12 +13,12 @@ class OfferFilter(FilterSet):
 
 
 class SellOfferFilter(OfferFilter):
-    class Meta():
+    class Meta:
         model = SellOffer
         fields = ['created', 'area', 'price', 'floor', 'floor_max']
 
 
 class RentOfferFilter(OfferFilter):
-    class Meta():
+    class Meta:
         model = RentOffer
         fields = ['created', 'area', 'price', 'floor', 'floor_max']

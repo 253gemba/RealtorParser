@@ -1,4 +1,5 @@
 from django.apps import AppConfig
+from RealtorParser_Backend.config import config
 
 
 class ApiConfig(AppConfig):
@@ -6,5 +7,6 @@ class ApiConfig(AppConfig):
     name = 'api'
 
     def ready(self):
-        from api import updater
-        updater.start()
+        if config.getboolean('APP', 'parser'):
+            from api import updater
+            updater.start()

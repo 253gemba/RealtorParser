@@ -1,8 +1,7 @@
 from django_filters.rest_framework import (DateTimeFromToRangeFilter,
                                            FilterSet, RangeFilter)
 
-from api.models import RentOffer, SellOffer
-
+from base.models import RentOffer, SellOffer
 
 class OfferFilter(FilterSet):
     created = DateTimeFromToRangeFilter()

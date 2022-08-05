@@ -40,15 +40,23 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'api',
     'django_apscheduler',
-    'django_filters'
+    'django_filters',
+    'base'
 ]
 
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend'
-    )
+    ),
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '10/minute',
+        'user': '20/minute'
+    }
 }
 
 MIDDLEWARE = [
@@ -80,18 +88,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'RealtorParser_Backend.wsgi.application'
-
-REST_FRAMEWORK = {
-    'DEFAULT_THROTTLE_CLASSES': [
-        'rest_framework.throttling.AnonRateThrottle',
-        'rest_framework.throttling.UserRateThrottle'
-    ],
-    'DEFAULT_THROTTLE_RATES': {
-        'anon': '10/minute',
-        'user': '20/minute'
-    }
-}
-
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases

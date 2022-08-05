@@ -55,7 +55,7 @@ class Parser(ABC):
     def _run(self, model: Type[Offer], url: str, get_cards: Callable[[], list[WebElement]], parse_card: Callable[[WebElement], Offer]):
         offers: list[Offer] = []
         
-        last_offer: Offer | None = model.objects.filter(card_link__startswith=self.base_url).order_by('-created').first()
+        last_offer: Offer | None = model.objects.filter(card_link__startswith=self.base_url).first()
 
         self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=webdriver.ChromeOptions())
         self.driver.get(self.base_url + url.format(page=1))

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from api.models import RentOffer, SellOffer
+from base.models import RentOffer, SellOffer
 
 
 class SellOfferSerializer(serializers.ModelSerializer):

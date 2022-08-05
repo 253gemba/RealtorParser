@@ -5,7 +5,8 @@ from time import sleep
 import pytesseract
 from PIL import Image
 from RealtorParser_Backend.config import config
-from selenium.common.exceptions import (ElementNotInteractableException,
+from selenium.common.exceptions import (ElementClickInterceptedException,
+                                        ElementNotInteractableException,
                                         NoSuchElementException)
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
@@ -148,7 +149,7 @@ class AvitoParser(Parser):
                 return True
             except NoSuchElementException:
                 return False
-            except ElementNotInteractableException:
+            except (ElementNotInteractableException, ElementClickInterceptedException):
                 sleep(1)
         
         return False

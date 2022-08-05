@@ -18,6 +18,7 @@ class Offer(Model):
 
     class Meta:
         abstract = True
+        ordering = ('-created',)
 
 
 class SellOffer(Offer):

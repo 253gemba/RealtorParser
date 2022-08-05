@@ -57,7 +57,9 @@ class Parser(ABC):
         
         last_offer: Offer | None = model.objects.filter(card_link__startswith=self.base_url).first()
 
-        self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=webdriver.ChromeOptions())
+        options = webdriver.ChromeOptions()
+        options.add_experimental_option('excludeSwitches', ['enable-logging'])
+        self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
         self.driver.get(self.base_url + url.format(page=1))
 
         cards = get_cards()
@@ -67,7 +69,7 @@ class Parser(ABC):
             if last_offer is not None and offer.card_link == last_offer.card_link:
                 break
 
-            offers.append(offer)
+            offers.insert(0, offer)
 
         self.driver.close()
         

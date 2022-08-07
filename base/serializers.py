@@ -13,4 +13,3 @@ class RentOfferSerializer(serializers.ModelSerializer):
     class Meta:
         model = RentOffer
         fields = '__all__'
-

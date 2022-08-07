@@ -4,7 +4,7 @@ from time import sleep
 
 import pytesseract
 from PIL import Image
-from RealtorParser_Backend.config import config
+from RealtorParser.config  import config
 from selenium.common.exceptions import (ElementClickInterceptedException,
                                         ElementNotInteractableException,
                                         NoSuchElementException)

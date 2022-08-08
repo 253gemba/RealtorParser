@@ -13,9 +13,6 @@
     ```
 2. Run
     ```
-    docker-compose up -d --build
-    docker-compose exec app python manage.py migrate
-    docker-compose exec app python manage.py createsuperuser --username=admin --email=admin@admin.com --noinput
-    docker-compose exec app python manage.py registerParsers
-    docker-compose exec app python manage.py collectstatic
+    docker-compose build
+    docker-compose up -d
     ```

@@ -3,10 +3,9 @@ from time import sleep
 from typing import Callable, Type
 
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
-from webdriver_manager.chrome import ChromeDriverManager
 
 from ..models import RentOffer, SellOffer
 
@@ -58,10 +57,11 @@ class Parser(ABC):
         last_offer: Offer | None = model.objects.filter(card_link__startswith=self.base_url).first()
 
         options = webdriver.ChromeOptions()
-        options.add_experimental_option('excludeSwitches', ['enable-logging'])
-        self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-        self.driver.get(self.base_url + url.format(page=1))
+        options.add_argument('--no-sandbox')
+        options.add_argument('--disable-dev-shm-usage')
+        self.driver = webdriver.Remote('http://selenium:4444/wd/hub', desired_capabilities=DesiredCapabilities.CHROME, options=options)
 
+        self.driver.get(self.base_url + url.format(page=1))
         cards = get_cards()
         for card in cards:
             offer = parse_card(card)
@@ -71,7 +71,7 @@ class Parser(ABC):
 
             offers.insert(0, offer)
 
-        self.driver.close()
-        
+        self.driver.quit()
+
         for offer in offers:
             offer.save()

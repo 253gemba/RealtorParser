@@ -4,7 +4,6 @@ from time import sleep
 
 import pytesseract
 from PIL import Image
-from RealtorParser.config  import config
 from selenium.common.exceptions import (ElementClickInterceptedException,
                                         ElementNotInteractableException,
                                         NoSuchElementException)
@@ -14,8 +13,6 @@ from selenium.webdriver.remote.webelement import WebElement
 
 from ..models import RentOffer, SellOffer
 from .Parser import Parser
-
-pytesseract.pytesseract.tesseract_cmd = config['APP']['tesseract_path']
 
 
 class AvitoParser(Parser):

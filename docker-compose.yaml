@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  selenium:
+    image: selenium/standalone-chrome
+    ports:
+      - 4444:4444
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    restart: always
+  
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_NAME}
+  
+  app:
+    build: .
+    command: python3 manage.py runserver 0.0.0.0:8000 --noreload
+    ports:
+      - 8000:8000
+    env_file:
+      - .env
+    depends_on:
+      - selenium
+      - db

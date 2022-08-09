@@ -2,13 +2,11 @@ import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
-print()
-print('НАЧАЛО')
-print()
 
 def record_data(data):
-    list_data = [data]
-    print(list_data)
+    list_data = []
+    list_data.append(data)
+    print(data)
     return list_data
 
 
@@ -28,12 +26,35 @@ def get_links_one_page():
 
 def get_data():
     list_links = get_links_one_page()
-    for link in list_links:
+    for card_link in list_links:
         driver = webdriver.Chrome()
-        driver.get(link)
+        driver.get(card_link)
         time.sleep(3)
-        place = driver.find_element(By.CLASS_NAME, 'ClClickableAddress__links').text.replace('\n', ' ')
-        price = driver.find_element(By.CLASS_NAME, 'Price').find_element(By.TAG_NAME, 'span').text
+
+        adress = driver.find_element(By.CLASS_NAME, 'ClClickableAddress__links').text.replace('\n', ' ')
+
+        link_page = driver.find_element(By.CLASS_NAME, 'CarouselGallery__img-container').find_element(By.TAG_NAME, 'img')\
+            .get_attribute('src')
+
+        price = driver.find_element(By.CLASS_NAME, 'Price').find_element(By.TAG_NAME, 'span').text.replace(' ', '')
+        price = int(price)
+
+        description = driver.find_element(By.CLASS_NAME, 'fonts-module__h1___2QWY_').text
+
+        area = ''
+        if 'студии' in description:
+            area = description.split('студии ')[-1].split('м²')[0]
+        elif 'квартиры' in description:
+            area = description.split('квартиры ')[-1].split('м²')[0]
+        if ',' in area:
+            area = float(area.replace(',', '.'))
+        else:
+            area = int(area)
+
+        floor = int(description.split('м²,')[-1].split('/')[0])
+
+        max_floor = int(description.split('м²,')[-1].split('/')[1].replace('этаж', ''))
+
         try:
             name = driver.find_element(By.CLASS_NAME, 'CardAuthorBadge__name').find_element(By.TAG_NAME, 'div').text
         except:
@@ -52,9 +73,10 @@ def get_data():
                 .text.replace(' ', '')
 
         time.sleep(3)
-        record_data([name, phone, price, place, link])
+        record_data([name, phone, price, adress, area, floor, max_floor, card_link, link_page])
 
         driver.quit()
 
 
-get_data()
+if __name__ == '__main__':
+    get_data()

@@ -35,11 +35,11 @@ class Parser(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def parse_sell_card(self, card: WebElement) -> SellOffer:
+    def parse_sell_card(self, card: WebElement) -> SellOffer | None:
         raise NotImplementedError
     
     @abstractmethod
-    def parse_rent_card(self, card: WebElement) -> RentOffer:
+    def parse_rent_card(self, card: WebElement) -> RentOffer | None:
         raise NotImplementedError
     
     def run(self):
@@ -51,7 +51,7 @@ class Parser(ABC):
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             sleep(1)
 
-    def _run(self, model: Type[Offer], url: str, get_cards: Callable[[], list[WebElement]], parse_card: Callable[[WebElement], Offer]):
+    def _run(self, model: Type[Offer], url: str, get_cards: Callable[[], list[WebElement]], parse_card: Callable[[WebElement], Offer | None]):
         offers: list[Offer] = []
         
         last_offer: Offer | None = model.objects.filter(card_link__startswith=self.base_url).first()
@@ -65,6 +65,9 @@ class Parser(ABC):
         cards = get_cards()
         for card in cards:
             offer = parse_card(card)
+
+            if offer is None:
+                continue
 
             if last_offer is not None and offer.card_link == last_offer.card_link:
                 break

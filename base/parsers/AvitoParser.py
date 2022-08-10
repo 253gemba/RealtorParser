@@ -37,7 +37,7 @@ class AvitoParser(Parser):
             .find_element(By.TAG_NAME, 'div')\
             .find_elements(By.XPATH, "./div[@itemtype='http://schema.org/Product']")
     
-    def parse_sell_card(self, card: WebElement) -> SellOffer:
+    def parse_sell_card(self, card: WebElement) -> SellOffer | None:
         ActionChains(self.driver).move_to_element(card).perform()
 
         # Show phone number
@@ -87,7 +87,7 @@ class AvitoParser(Parser):
             floor=floor,
             floor_max=floor_max) 
     
-    def parse_rent_card(self, card: WebElement) -> RentOffer:
+    def parse_rent_card(self, card: WebElement) -> RentOffer | None:
         ActionChains(self.driver).move_to_element(card).perform()
 
         # Show phone number

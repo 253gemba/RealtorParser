@@ -24,7 +24,7 @@ class CianParser(Parser):
     def get_cards(self) -> list[WebElement]:
         return self.driver.find_elements(By.XPATH, ".//article[@data-name='CardComponent']")
 
-    def parse_sell_card(self, card: WebElement) -> SellOffer:
+    def parse_sell_card(self, card: WebElement) -> SellOffer | None:
         # Show phone number
         card.find_element(By.XPATH, ".//button[@data-mark='PhoneButton']").click()
         card_link = card.find_element(By.TAG_NAME, 'a').get_attribute('href')
@@ -67,7 +67,7 @@ class CianParser(Parser):
             floor=floor,
             floor_max=floor_max)
 
-    def parse_rent_card(self, card: WebElement) -> RentOffer:
+    def parse_rent_card(self, card: WebElement) -> RentOffer | None:
         # Show phone number
         try:
             card.find_element(By.XPATH, ".//button[@data-mark='PhoneButton']").click()

@@ -4,13 +4,13 @@ from time import sleep
 
 import pytesseract
 from PIL import Image
-from RealtorParser.config  import config
-from selenium.common.exceptions import (ElementClickInterceptedException,
-                                        ElementNotInteractableException,
-                                        NoSuchElementException)
+from RealtorParser.config import config
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 from ..models import RentOffer, SellOffer
 from .Parser import Parser
@@ -40,9 +40,6 @@ class AvitoParser(Parser):
     def parse_sell_card(self, card: WebElement) -> SellOffer | None:
         ActionChains(self.driver).move_to_element(card).perform()
 
-        # Show phone number
-        has_phone = AvitoParser._show_number(card)
-
         divs = card.find_element(By.TAG_NAME, 'div').find_elements(By.XPATH, './*')
 
         card_link = divs[0].find_element(By.TAG_NAME, 'a').get_attribute('href')
@@ -60,6 +57,7 @@ class AvitoParser(Parser):
         price = int(divs[1].find_element(By.XPATH, ".//span[@itemtype='http://schema.org/Offer']").text.replace('₽', '').replace(' ', ''))
         
         location = divs[1].find_element(By.XPATH, ".//div[@data-marker='item-address']").find_element(By.TAG_NAME, 'span').text
+        description = divs[1].find_element(By.XPATH, ".//div[@data-marker='item-address']/following-sibling::div").text
         
         try:
             metro = divs[1]\
@@ -69,10 +67,8 @@ class AvitoParser(Parser):
                 .replace('\n', ' ')
         except NoSuchElementException:
             metro = None
-        
-        phone = AvitoParser._phone_number(card) if has_phone else None
-        description = divs[1].find_element(By.XPATH, ".//div[@data-marker='item-address']/following-sibling::div").text
 
+        phone = self._get_number(card)
         sleep(1)
         return SellOffer(
             card_link=card_link,
@@ -89,9 +85,6 @@ class AvitoParser(Parser):
     
     def parse_rent_card(self, card: WebElement) -> RentOffer | None:
         ActionChains(self.driver).move_to_element(card).perform()
-
-        # Show phone number
-        has_phone = AvitoParser._show_number(card)
 
         divs = card.find_element(By.TAG_NAME, 'div').find_elements(By.XPATH, './*')
 
@@ -112,17 +105,15 @@ class AvitoParser(Parser):
         price = int(price_text.split('₽')[0].replace(' ', ''))
         price_per = RentOffer.price_day if price_text.split('₽')[1].strip().endswith('сутки') else RentOffer.price_month
 
-
         location = divs[1].find_element(By.XPATH, ".//div[@data-marker='item-address']").find_element(By.TAG_NAME, 'span').text
+        description = divs[1].find_element(By.XPATH, ".//div[@data-marker='item-address']/following-sibling::div").text
         
         try:
             metro = divs[1].find_element(By.XPATH, ".//div[@data-marker='item-address']").find_element(By.TAG_NAME, 'div').find_element(By.TAG_NAME, 'div').text
         except NoSuchElementException:
             metro = None
         
-        phone = AvitoParser._phone_number(card) if has_phone else None
-        description = divs[1].find_element(By.XPATH, ".//div[@data-marker='item-address']/following-sibling::div").text
-
+        phone = self._get_number(card)
         sleep(1)
         return RentOffer(
             card_link=card_link,
@@ -138,28 +129,19 @@ class AvitoParser(Parser):
             floor=floor,
             floor_max=floor_max) 
     
-    @staticmethod
-    def _show_number(card: WebElement) -> bool:
-        for _ in range(5):
-            try:
-                card.find_element(By.XPATH, ".//div[@data-marker='item-contact']").find_element(By.TAG_NAME, 'button').click()
-                return True
-            except NoSuchElementException:
-                return False
-            except (ElementNotInteractableException, ElementClickInterceptedException):
-                sleep(1)
+    def _get_number(self, card: WebElement) -> str | None:
+        try:
+            button = card.find_element(By.XPATH, ".//div[@data-marker='item-contact']").find_element(By.TAG_NAME, 'button')
+        except NoSuchElementException:
+            return None
         
-        return False
-    
-    @staticmethod
-    def _phone_number(card: WebElement) -> str:
-        for _ in range(5):
-            try:
-                data = card.find_element(By.XPATH, ".//div[@data-marker='item-contact']").find_element(By.TAG_NAME, 'img').get_attribute('src')
-                break
-            except NoSuchElementException:
-                sleep(1)
-        else:
-            return ''
+        WebDriverWait(self.driver, 5).until(EC.element_to_be_clickable(button))
+        button.click()
 
-        return pytesseract.image_to_string(Image.open(BytesIO(b64decode(data.replace('data:image/png;base64,', '')))))
+        phone_img = WebDriverWait(self.driver, 5).until(
+            lambda _: card \
+                .find_element(By.XPATH, ".//div[@data-marker='item-contact']") \
+                .find_element(By.TAG_NAME, 'img') \
+                .get_attribute('src')) \
+            .replace('data:image/png;base64,', '')
+        return pytesseract.image_to_string(Image.open(BytesIO(b64decode(phone_img))))

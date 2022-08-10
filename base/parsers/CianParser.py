@@ -1,8 +1,7 @@
-from time import sleep
-
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.support.ui import WebDriverWait
 
 from ..models import RentOffer, SellOffer
 from .Parser import Parser
@@ -52,8 +51,8 @@ class CianParser(Parser):
         price = int(card.find_element(By.XPATH, ".//span[@data-mark='MainPrice']").text.replace('₽', '').replace(' ', ''))
         location = ', '.join([geo.text for geo in card.find_elements(By.XPATH, ".//a[@data-name='GeoLabel']")])
         metro = card.find_element(By.XPATH, ".//div[@data-name='SpecialGeo']").text.replace('\n', ' ')
-        sleep(2)
-        phone = card.find_element(By.XPATH, ".//span[@data-mark='PhoneValue']").text
+        phone = WebDriverWait(self.driver, 2) \
+            .until(lambda _: card.find_element(By.XPATH, ".//span[@data-mark='PhoneValue']")).text
         return SellOffer(
             card_link=card_link,
             image_link=image_link,
@@ -104,8 +103,8 @@ class CianParser(Parser):
 
         phone = None
         if has_phone:
-            sleep(2)
-            phone = card.find_element(By.XPATH, ".//span[@data-mark='PhoneValue']").text
+            phone = WebDriverWait(self.driver, 2) \
+                .until(lambda _: card.find_element(By.XPATH, ".//span[@data-mark='PhoneValue']")).text
         
         return RentOffer(
             card_link=card_link,
